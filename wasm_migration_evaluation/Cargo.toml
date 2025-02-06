@@ -1,0 +1,18 @@
+[package]
+name = "wasm_migrate_evalutation"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+wasm-migrate = { workspace = true }
+wasmtime = "29.0.1"
+wasmtime-wasi = "29.0.1"
+
+# Used to write into a json file relevant data (for evaluation purposes).
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[lints]
+workspace = true

@@ -41,7 +41,8 @@ members = [
   'crates/wit-encoder',
   'crates/wit-parser/fuzz',
   'crates/wit-component/dl',
-  'playground/component',
+  'playground/component', "crates/wasm-migrate", "checkpoint_and_restore_experiment/gcd_exemple",
+  'wasm_migration_evaluation',
 ]
 
 [workspace.lints.rust]
@@ -102,6 +103,7 @@ indoc = "2.0.5"
 gimli = "0.30.0"
 id-arena = "2"
 
+wasm-migrate = { version = "0.222.0", path = "crates/wasm-migrate"}
 wasm-compose = { version = "0.222.0", path = "crates/wasm-compose" }
 wasm-encoder = { version = "0.222.0", path = "crates/wasm-encoder", default-features = false, features = ["std"] }
 wasm-metadata = { version = "0.222.0", path = "crates/wasm-metadata" }
