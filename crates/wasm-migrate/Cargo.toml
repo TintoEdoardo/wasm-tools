@@ -6,12 +6,16 @@ version.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-wasmparser = { workspace = true, features = ['simd'] }
-wasm-encoder = { workspace = true, features = ['wasmparser'] }
+wasmparser = { workspace = true, features = ['simd','component-model'] }
+wasm-encoder = { workspace = true, features = ['wasmparser','component-model'] }
 wasm-mutate = { workspace = true }
 wat = { workspace = true}
 wasmprinter = { workspace = true}
 serde = { version = "1.0.217", features = ["derive"] }
+anyhow = "1.0.95"
+
+[features]
+component-model = []
 
 [lints]
 workspace = true

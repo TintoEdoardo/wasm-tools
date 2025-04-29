@@ -42,7 +42,7 @@ members = [
   'crates/wit-parser/fuzz',
   'crates/wit-component/dl',
   'playground/component', "crates/wasm-migrate", "checkpoint_and_restore_experiment/gcd_exemple",
-  'wasm_migration_evaluation',
+  'wasm_migration_evaluation', "wasm_migrate_eval_migration",
 ]
 
 [workspace.lints.rust]

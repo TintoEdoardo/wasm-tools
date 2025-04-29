@@ -1,5 +1,5 @@
 [package]
-name = "wasm_migrate_evalutation"
+name = "wasm_migrate_eval_migration"
 edition.workspace = true
 license.workspace = true
 version.workspace = true
@@ -10,16 +10,11 @@ wasm-migrate = { workspace = true }
 wasmtime = "31.0.0"
 wasmtime-wasi = "31.0.0"
 wasm-encoder = { workspace = true, features = ["component-model"] }
-serde_json = "1.0.128"
-serde = { version = "1.0.217", features = ["derive"] }
 affinity = "0.1.2"
+rustix = { version = "1.0.5", features = ["time"] }
 
 [features]
 default = ['wasmtime/component-model', 'wasm-encoder/component-model']
-
-# Used to write into a json file relevant data (for evaluation purposes).
-# serde = { version = "1.0", features = ["derive"] }
-# serde_json = "1.0"
 
 [lints]
 workspace = true

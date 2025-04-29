@@ -5,13 +5,20 @@ use wasmtime_wasi::{preview1, WasiCtxBuilder};
 use wasmtime_wasi::preview1::WasiP1Ctx;
 use wasm_migrate::{WasmMigrate, ComputationInfo};
 use crate::config::{BenchmarkInfo, Benchmarks};
+use affinity;
+use std::env;
 
 mod config;
 
-fn inject_checkpoint_and_restore_procedures(benchmark: &BenchmarkInfo) -> ComputationInfo {
+// PolyBenchC experiment
+fn inject_checkpoint_and_restore_procedures(benchmark: &BenchmarkInfo, distributed: bool) // -> ComputationInfo
+{
     println!("Injecting benchmark checkpoint for {}...", benchmark.name);
 
     let mut migration_injector: WasmMigrate = WasmMigrate::new();
+    migration_injector.component_index = 0;
+    migration_injector.core_module_index = 0;
+    migration_injector.func_index = benchmark.func_index as i32;
 
     // Load the module Wasm bytecode.
     let path_to_file =
@@ -25,7 +32,7 @@ fn inject_checkpoint_and_restore_procedures(benchmark: &BenchmarkInfo) -> Comput
     // Inject the procedures into the input wasm bytes.
     let binding = wasm_bytes.clone();
     let modified_body =
-        migration_injector.compute(&binding, benchmark.func_index);
+        migration_injector.compute(&binding, distributed).clone();
 
     // Then save the resulting module.
     let mut output_file = std::fs::OpenOptions::new()
@@ -36,8 +43,8 @@ fn inject_checkpoint_and_restore_procedures(benchmark: &BenchmarkInfo) -> Comput
 
     let _ = output_file.write(modified_body.as_slice());
 
-    // Return the information acquired for the computation. .
-    migration_injector.print_module_info(benchmark.func_index, benchmark.name.clone())
+    // Return the information acquired for the computation.
+    // migration_injector.print_module_info(benchmark.func_index, benchmark.name.clone())
 }
 
 fn run_benchmark(benchmark: &BenchmarkInfo, path_to_dir: String) {
@@ -89,7 +96,8 @@ fn run_benchmark(benchmark: &BenchmarkInfo, path_to_dir: String) {
 
     let mut result = [];
     let _r = func.call(&mut store, &[], &mut result);
-    println!("Return value: {:?}", _r);
+    // println!("Return value: {:?}", _r);
+    assert_eq!(_r.unwrap(), ());
 }
 
 #[allow(unsafe_code)]
@@ -245,28 +253,45 @@ fn run_checkpoint_and_restore_benchmark(benchmark: &BenchmarkInfo, path_to_dir: 
 }
 
 fn main() -> () {
+    let args: Vec<String> = env::args().collect();
+    let number_of_samples_str = &args[1];
+    let distributed_as_string = &args[2];
+    let run_original_as_string = &args[3];
+    let number_of_samples = number_of_samples_str.parse::<i32>().unwrap();
+    let distributed = distributed_as_string.parse::<bool>().unwrap();
+    let run_original = run_original_as_string.parse::<bool>().unwrap();
+    println!(" - The experiment start - ");
+    println!("Configuration: samples         = {} ", number_of_samples);
+    println!("               distributed C/R = {}", distributed);
+    println!("               original        = {}", run_original);
+
+    let cores: Vec<usize> = vec![8];
+    affinity::set_thread_affinity(&cores).unwrap();
+
+    /*  PolyBenchC experiment */
 
     // Register the computation configs.
     let benchmarks = Benchmarks::new();
 
     // Vector with the data acquired during the checkpoint injection.
-    let mut benchmarks_data = vec![];
+    // let mut benchmarks_data = vec![];
 
     // Checkpoint and restore injection.
     for benchmark in &benchmarks.benchmarks {
-        let comp_info = inject_checkpoint_and_restore_procedures(benchmark);
-        benchmarks_data.push(comp_info);
+        // let comp_info = 
+        inject_checkpoint_and_restore_procedures(benchmark, distributed);
+        // benchmarks_data.push(comp_info);
     }
 
     // Save the data acquired so far.
-    let path_to_report = "./wasm_migration_evaluation/report/report.json";
-    let mut report = File::create(path_to_report).expect("Unable to save the file. ");
-    let json_data = serde_json::to_string_pretty(&benchmarks_data).unwrap();
-    let _result = report.write_all(json_data.as_bytes());
+    // let path_to_report = "./wasm_migration_evaluation/report/report.json";
+    // let mut report = File::create(path_to_report).expect("Unable to save the file. ");
+    // let json_data = serde_json::to_string_pretty(&benchmarks_data).unwrap();
+    // let _result = report.write_all(json_data.as_bytes());
 
     // Run each computation and measure the execution times.
-    let number_of_sample = 50;
-    #[derive(serde::Serialize)]
+    // let number_of_sample = 20;
+    // #[derive(serde::Serialize)]
     struct ExecutionTime {
         computation: String,
         execution_time: Vec<f64>,
@@ -297,22 +322,25 @@ fn main() -> () {
         }
     }
 
-    // Acquire the execution time for the original computation.
-    println!("Acquiring the execution time for the original computation... ");
-    run_all_benchmarks(
-        &benchmarks,
-        path_to_wasm_dir.to_string(),
-        number_of_sample,
-        &mut original_comp_times);
-
-    // Acquire the execution time for the migrating computation.
-    println!("Acquiring the execution time for the migrating computation... ");
-    run_all_benchmarks(
-        &benchmarks,
-        path_to_mig_dir.to_string(),
-        number_of_sample,
-        &mut migrating_comp_times);
-
+    if run_original {
+        // Acquire the execution time for the original computation.
+        println!("Acquiring the execution time for the original computation... ");
+        run_all_benchmarks(
+            &benchmarks,
+            path_to_wasm_dir.to_string(),
+            number_of_samples,
+            &mut original_comp_times);
+    }
+    else {
+        // Acquire the execution time for the migrating computation.
+        println!("Acquiring the execution time for the migrating computation... ");
+        run_all_benchmarks(
+            &benchmarks,
+            path_to_mig_dir.to_string(),
+            number_of_samples,
+            &mut migrating_comp_times);
+    }
+    
     println!("Hello, world!");
-
+    
 }
