@@ -63,6 +63,7 @@ subcommands! {
     // wasm.
     (shrink, "shrink" #[cfg(not(target_family = "wasm"))])
     (mutate, "mutate")
+    (migrate, "migrate")
     (dump, "dump")
     (objdump, "objdump")
     (strip, "strip")

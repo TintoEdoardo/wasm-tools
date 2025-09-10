@@ -116,6 +116,7 @@ wit-component = { version = "0.222.0", path = "crates/wit-component" }
 wit-encoder = { version = "0.222.0", path = "crates/wit-encoder" }
 wit-parser = { version = "0.222.0", path = "crates/wit-parser" }
 wit-smith = { version = "0.222.0", path = "crates/wit-smith" }
+wasm-migrate = { version = "0.222.0", path = "crates/wasm-migrate" }
 
 [dependencies]
 anyhow = { workspace = true }
@@ -172,6 +173,9 @@ wasm-metadata = { workspace = true, features = ["clap"], optional = true }
 # Dependencies of `wit-smith`
 wit-smith = { workspace = true, features = ["clap"], optional = true }
 
+# Dependencies of `migrate`
+wasm-migrate = { workspace = true, optional = true }
+
 # Dependencies of `addr2line`
 addr2line = { version = "0.23.0", optional = true }
 gimli = { workspace = true, optional = true }
@@ -215,6 +219,7 @@ default = [
   'addr2line',
   'completion',
   'json-from-wast',
+  'migrate',
 ]
 
 # Each subcommand is gated behind a feature and lists the dependencies it needs
@@ -248,6 +253,7 @@ component = [
 ]
 metadata = ['dep:wasmparser', 'wasm-metadata', 'dep:serde_json']
 wit-smith = ['dep:wit-smith', 'arbitrary']
+migrate = ['wasm-migrate']
 addr2line = ['dep:addr2line', 'dep:gimli', 'dep:wasmparser']
 completion = ['dep:clap_complete']
 json-from-wast = ['dep:serde_derive', 'dep:serde_json', 'dep:wast', 'dep:serde']
