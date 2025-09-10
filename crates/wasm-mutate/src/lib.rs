@@ -11,7 +11,7 @@
 
 mod error;
 mod info;
-mod module;
+pub mod module;
 mod mutators;
 
 pub use error::*;
