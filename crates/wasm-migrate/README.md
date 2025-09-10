@@ -4,7 +4,7 @@
 <strong>By <a href="https://computecontinuum.eu/">Edoardo Tinto</a></strong>
 
   <p>
-    <strong>wasm-migrate is a tool to enable a computation to migrate, virtually, from any runtime.</strong>
+    <strong>wasm-migrate is a tool to inject checkpoint and restore procedures into a core module.</strong>
   </p>
 
 </div>
@@ -14,12 +14,23 @@
 
 ## Usage
 
-Add `wasm-migrate` to your `Cargo.toml`:
+Add `wasm-migrate` to your `Cargo.toml`
+
+```sh
+$ cargo add wasm-migrate
+```
+
+Or run the tool from CLI, the result is in WAT format:
+
+```sh
+wasm-tools migrate <func_index> <wasm_module>
+```
 
 ## Features
 
 * **checkpoint and restore:** injects checkpoint and restore procedures directly in the Wasm bytecode. 
-* **migration:** two host imported functions are required to migrate. 
+
+
   ### Example
 
   ```rust
